@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">AssignmentPrototype</string>
+    <string name="content1">• Split gateway: point where process flow diverges\n• Join gateway: point where process flow converges\n• Mutually exclusive: when activities are alternatives to each other
+    </string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="topic1">Topic 1</string>
+    <string name="topic2">Topic 2</string>
+    <string name="topic3">Topic 3</string>
+    <string name="topic4">Topic 4</string>
+    <string name="select_topic">Please Select a Topic:</string>
+    <string name="select_test_topic">Please Select a Test Topic:</string>
+    <string name="or">Or:</string>
+    <string name="test_yourself">Test Yourself</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="auth_failed">Authentication Failed</string>
+    <string name="topics">Topics</string>
+    <string name="flashcards">Flashcards</string>
+    <string name="test_history">Test History</string>
+    <string name="logout">Logout</string>
+    <string name="find_instructions">Say \'find...\' to search for text</string>
+    <string name="loading">Loading...</string>
+    <string name="home">Home</string>
+    <string name="instructionsHome">Spend more time in the app to grow your tree AND complete quizzes to adopt more bunnies</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

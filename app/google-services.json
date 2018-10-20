@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "897160329139",
+    "firebase_url": "https://flash-6c72e.firebaseio.com",
+    "project_id": "flash-6c72e",
+    "storage_bucket": "flash-6c72e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:897160329139:android:c5d63241a27a7f42",
+        "android_client_info": {
+          "package_name": "com.example.vinguyen.assignmentprototype"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "897160329139-6ijet330nvbrorg42pf7o5h529t4iotv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0_V5rz5DWyyfh7MApcHumcc4XYfzpwQc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

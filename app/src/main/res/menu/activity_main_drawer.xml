@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group>
+        <item android:id="@+id/nav_home"
+            android:icon="@drawable/home"
+            android:title="@string/home" />
+        <item android:id="@+id/nav_topics"
+            android:icon="@drawable/topics"
+            android:title="@string/topics" />
+        <item android:id="@+id/nav_test"
+            android:icon="@drawable/test"
+            android:title="@string/test_yourself" />
+        <item android:id="@+id/nav_flashcards"
+            android:icon="@drawable/flashcards"
+            android:title="@string/flashcards" />
+        <item android:id="@+id/nav_test_history"
+            android:title="@string/test_history" />
+    </group>
+
+    <group android:id="@+id/group_menu">
+        <item android:id="@+id/logout"
+            android:icon="@drawable/logout"
+            android:title="@string/logout" />
+    </group>
+</menu>
