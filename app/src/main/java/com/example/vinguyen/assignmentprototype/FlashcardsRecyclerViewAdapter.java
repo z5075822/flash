@@ -11,20 +11,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.vinguyen.assignmentprototype.Model.Flashcard;
 import com.example.vinguyen.assignmentprototype.Model.Topic;
+import com.wajahatkarim3.easyflipview.EasyFlipView;
 
 import java.util.ArrayList;
 
 public class FlashcardsRecyclerViewAdapter extends RecyclerView.Adapter<FlashcardsRecyclerViewAdapter.ViewHolder> {
     private static final String TAG = "RecyclerViewAdapter";
-    private ArrayList<Topic> mContent = new ArrayList<>();
-    private ArrayList<String> mScore = new ArrayList<>();
+    private ArrayList<Flashcard> mFlashcard = new ArrayList<>();
     private Context mContext;
 
-    public FlashcardsRecyclerViewAdapter(Context mContext, ArrayList<Topic> mContent, ArrayList<String> mScore) {
-        this.mContent = mContent;
+    public FlashcardsRecyclerViewAdapter(Context mContext, ArrayList<Flashcard> mFlashcard) {
+        this.mFlashcard = mFlashcard;
         this.mContext = mContext;
-        this.mScore = mScore;
     }
 
     @Override
@@ -36,40 +36,38 @@ public class FlashcardsRecyclerViewAdapter extends RecyclerView.Adapter<Flashcar
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.content.setText(mContent.get(position).getTitle());
-        holder.score.setText(mScore.get(position).toString() + "/4");
-
-        holder.parentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                QuestionsFragment fragment = new QuestionsFragment();
-                Bundle args = new Bundle();
-                args.putString("Key", mContent.get(position).getTopicID());
-                FragmentManager manager = ((AppCompatActivity) mContext).getSupportFragmentManager();
-                fragment.setArguments(args);
-                manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("testTopics").commit();
-            }
-        });
+        holder.textViewFlashcardFront.setText(mFlashcard.get(position).getFront());
+        holder.textViewFlashcardBack.setText(mFlashcard.get(position).getBack());
     }
 
     @Override
     public int getItemCount() {
-        return mContent.size();
+        return mFlashcard.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView content;
-        TextView score;
-        ConstraintLayout parentLayout;
+        TextView textViewFlashcardFront, textViewFlashcardBack;
+        ConstraintLayout backSide, frontSide;
+        EasyFlipView easyFlipView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            content = itemView.findViewById(R.id.contents);
-            score = itemView.findViewById(R.id.score);
-            parentLayout = itemView.findViewById(R.id.parent_layout);
-
-
+            textViewFlashcardBack = itemView.findViewById(R.id.textViewFlashcardBack);
+            textViewFlashcardFront = itemView.findViewById(R.id.textViewFlashcardFront);
+            easyFlipView = itemView.findViewById(R.id.easyFlipView);
+            backSide = itemView.findViewById(R.id.backSide);
+            frontSide = itemView.findViewById(R.id.frontSide);
+            View.OnClickListener flipClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    easyFlipView.setFlipDuration(400);
+                    easyFlipView.flipTheView();
+                }
+            };
+//            backSide.setOnClickListener(flipClickListener);
+//            frontSide.setOnClickListener(flipClickListener);
+            easyFlipView.setOnClickListener(flipClickListener);
         }
     }
 

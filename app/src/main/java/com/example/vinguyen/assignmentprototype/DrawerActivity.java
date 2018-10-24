@@ -35,7 +35,8 @@ public class DrawerActivity extends AppCompatActivity
         HomeFragment.OnFragmentInteractionListener,
         FlashcardsFragment.OnFragmentInteractionListener,
         TestHistoryFragment.OnFragmentInteractionListener,
-        NotesFragment.OnFragmentInteractionListener {
+        NotesFragment.OnFragmentInteractionListener,
+        FlashcardsListFragment.OnFragmentInteractionListener{
     private static final String TAG = "DrawerActivity";
     private FirebaseAuth auth;
     private long timeStart, timeFinish;
@@ -207,7 +208,7 @@ public class DrawerActivity extends AppCompatActivity
         } else if (id == R.id.nav_test) {
             fragment = new TestTopicsFragment();
         } else if (id == R.id.nav_flashcards) {
-            fragment = new FlashcardsFragment();
+            fragment = new FlashcardsListFragment();
         } else if (id == R.id.nav_test_history) {
             fragment = new TestHistoryFragment();
         } else if (id == R.id.logout) {

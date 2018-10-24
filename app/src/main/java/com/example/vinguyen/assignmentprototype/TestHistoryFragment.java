@@ -4,16 +4,26 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
+import com.example.vinguyen.assignmentprototype.Model.Topic;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -34,7 +44,10 @@ public class TestHistoryFragment extends Fragment {
     private static final String TAG = "TestHistoryFragment";
 
     private OnFragmentInteractionListener mListener;
-
+    private ArrayList<Topic> mTopic = new ArrayList<>();
+    private ArrayList<String> mScore = new ArrayList<>();
+    private boolean topicFinished, scoreFinished;
+    private Button btnSend;
 
     public TestHistoryFragment() {
         // Required empty public constructor
@@ -54,8 +67,20 @@ public class TestHistoryFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        View view = getView();
-        //new SendEmail().execute();
+        final View view = getView();
+        initTopicArrayList();
+        btnSend = view.findViewById(R.id.btnSend);
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (scoreFinished && topicFinished) {
+                    new SendEmail().execute();
+                    Toast.makeText(getActivity(), "Email has been sent", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getActivity(), "Please wait 10 seconds while system initiates", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -105,14 +130,17 @@ public class TestHistoryFragment extends Fragment {
                 message.setFrom(new InternetAddress("from-email@gmail.com"));
                 message.setRecipients(Message.RecipientType.TO,
                         InternetAddress.parse(email));
-                message.setSubject("Testing Subject");
-                message.setText("Dear Mail Crawler,"
-                        + "\n\n No spam to my email, please!");
-
+                message.setSubject("Flash: INFS3604 Test History");
+                StringBuilder messageBody = new StringBuilder(1000);
+                for (int i = 0; i < mTopic.size(); i++) {
+                    messageBody.append("You got " + mScore.get(i) + " for " + mTopic.get(i).getTitle() + "\n");
+                    if (Integer.parseInt(mScore.get(i)) == 4) {
+                        messageBody.append("\tReview the questions by going to this link: " + mTopic.get(i).getQuestionDoc() + "\n");
+                    }
+                }
+                message.setText(messageBody.toString());
                 Transport.send(message);
-
-                Log.d(TAG, "onActivityCreated: SENT");
-
+                Log.d(TAG, "doInBackground: messsage sent");
             } catch (MessagingException e) {
                 throw new RuntimeException(e);
             }
@@ -120,4 +148,43 @@ public class TestHistoryFragment extends Fragment {
         }
     }
 
+    public void initTopicArrayList() {
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference topicsRef = rootRef.child("INFS3604").child("Topics");
+        ValueEventListener topicsEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    Topic topic = ds.getValue(Topic.class);
+                    mTopic.add(topic);
+                }
+                topicFinished = true;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference scoreRef = rootRef.child("INFS3604").child("Highscore").child(user.getUid());
+        ValueEventListener scoreEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    String topic = ds.getKey();
+                    mScore.add(dataSnapshot.child(topic).getValue().toString());
+                }
+                scoreFinished = true;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        topicsRef.addListenerForSingleValueEvent(topicsEventListener);
+        scoreRef.addListenerForSingleValueEvent(scoreEventListener);
+    }
 }

@@ -128,7 +128,7 @@ public class NotesFragment extends Fragment {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                Toast.makeText(getActivity(), "on Swiped ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Note deleted!", Toast.LENGTH_SHORT).show();
                 //Remove swiped item from list and notify the RecyclerView
                 final int position = viewHolder.getAdapterPosition();
                 DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
@@ -140,7 +140,6 @@ public class NotesFragment extends Fragment {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                 if (ds.getValue().toString().equals(mNotes.get(position).toString())) {
-                                    Log.d(TAG, "onDataChange: " + ds.getValue().toString() + "//" + mNotes.get(position).toString() + "//" + ds.getKey());
                                     notesRef.child(ds.getKey()).removeValue();
                                     mNotes.remove(position);
                                     break;

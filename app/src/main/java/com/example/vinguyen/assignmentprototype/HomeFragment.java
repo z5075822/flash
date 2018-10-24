@@ -1,5 +1,6 @@
 package com.example.vinguyen.assignmentprototype;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -134,42 +135,48 @@ public class HomeFragment extends Fragment {
     }
 
     public void switchBunny(){
-        if (countPerfect>0) {
-            imageViewBunny1.setVisibility(View.VISIBLE);
+        Activity activity = getActivity();
+        if(activity != null) {
+            if (countPerfect > 0) {
+                imageViewBunny1.setVisibility(View.VISIBLE);
+            }
+            if (countPerfect > 1) {
+                imageViewBunny2.setVisibility(View.VISIBLE);
+            }
+            if (countPerfect > 2) {
+                imageViewBunny3.setVisibility(View.VISIBLE);
+            }
+            if (countPerfect > 3) {
+                imageViewBunny4.setVisibility(View.VISIBLE);
+            }
+            if (countPerfect > 4) {
+                imageViewBunny5.setVisibility(View.VISIBLE);
+            }
+            imageViewBunny6.setVisibility(View.VISIBLE);
+            bunnyLoaded = true;
+            switchProgressBar();
         }
-        if (countPerfect>1) {
-            imageViewBunny2.setVisibility(View.VISIBLE);
-        }
-        if (countPerfect>2) {
-            imageViewBunny3.setVisibility(View.VISIBLE);
-        }
-        if (countPerfect>3) {
-            imageViewBunny4.setVisibility(View.VISIBLE);
-        }
-        if (countPerfect>4) {
-            imageViewBunny5.setVisibility(View.VISIBLE);
-        }
-        imageViewBunny6.setVisibility(View.VISIBLE);
-        bunnyLoaded = true;
-        switchProgressBar();
     }
 
     public void switchTree(Integer minutes){
-        if (minutes>=20) {
-            imageViewTree.setImageDrawable(getResources().getDrawable(R.drawable.apple_tree2));
+        Activity activity = getActivity();
+        if(activity != null) {
+            if (minutes >= 20) {
+                imageViewTree.setImageDrawable(getResources().getDrawable(R.drawable.apple_tree2));
+            }
+            if (minutes >= 40) {
+                imageViewTree.setImageDrawable(getResources().getDrawable(R.drawable.apple_tree3));
+            }
+            if (minutes >= 60) {
+                imageViewTree.setImageDrawable(getResources().getDrawable(R.drawable.apple_tree4));
+            }
+            if (minutes >= 80) {
+                imageViewTree.setImageDrawable(getResources().getDrawable(R.drawable.apple_tree5));
+            }
+            imageViewTree.setVisibility(View.VISIBLE);
+            treeLoaded = true;
+            switchProgressBar();
         }
-        if (minutes>=40) {
-            imageViewTree.setImageDrawable(getResources().getDrawable(R.drawable.apple_tree3));
-        }
-        if (minutes>=60) {
-            imageViewTree.setImageDrawable(getResources().getDrawable(R.drawable.apple_tree4));
-        }
-        if (minutes>=80) {
-            imageViewTree.setImageDrawable(getResources().getDrawable(R.drawable.apple_tree5));
-        }
-        imageViewTree.setVisibility(View.VISIBLE);
-        treeLoaded = true;
-        switchProgressBar();
     }
 
     public void switchProgressBar(){

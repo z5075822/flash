@@ -8,15 +8,14 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
-import com.example.vinguyen.assignmentprototype.Model.Topic;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.example.vinguyen.assignmentprototype.Model.Flashcard;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,14 +23,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class FlashcardsFragment extends Fragment {
     private RecyclerView recyclerView;
-    private ArrayList<String> mTopicTitle = new ArrayList<>();
-    private ArrayList<Topic> mTopic = new ArrayList<>();
-    private ArrayList<String> mScore = new ArrayList<>();
+    private ArrayList<Flashcard> mFlashcard = new ArrayList<>();
     private ProgressBar progressBarTopics;
-    private boolean topicFinished, scoreFinished;
+    private String mTopicID ="", mTopicTitle;
+    private TextView textViewTitle;
+    private Button btnReset;
 
     private OnFragmentInteractionListener mListener;
 
@@ -46,13 +46,25 @@ public class FlashcardsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_flashcards, container, false);
         progressBarTopics = rootView.findViewById(R.id.progressBarTopics);
         recyclerView = rootView.findViewById(R.id.my_recycler_view);
-        initTopicArrayList();
+        textViewTitle = rootView.findViewById(R.id.textViewTitle);
+        mTopicID = getArguments().getString("topicID");
+        mTopicTitle = getArguments().getString("title");
+        textViewTitle.setText(mTopicTitle);
+        btnReset = rootView.findViewById(R.id.btnReset);
+        initFlashcardArrayList();
         return rootView;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        btnReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initFlashcardArrayList();
+            }
+        });
     }
 
     @Override
@@ -77,24 +89,19 @@ public class FlashcardsFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public void initTopicArrayList() {
+    public void initFlashcardArrayList() {
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference topicsRef = rootRef.child("INFS3604").child("Topics");
-        ValueEventListener topicsEventListener = new ValueEventListener() {
+        DatabaseReference flashcardsRef = rootRef.child("INFS3604").child("Topics").child(mTopicID).child("flashcards");
+        ValueEventListener flashcardsEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    Topic topic = ds.getValue(Topic.class);
-                    if (!mTopicTitle.contains(topic.getTitle())) {
-                        mTopicTitle.add(topic.getTitle());
-                        topic.setTopicID(ds.getKey());
-                        mTopic.add(topic);
-                    }
+                    String front = ds.getKey();
+                    String back = ds.getValue().toString();
+                    mFlashcard.add(new Flashcard(front, back));
+                    Collections.shuffle(mFlashcard);
                 }
-                topicFinished = true;
-                if (topicFinished && scoreFinished) {
-                    initRecyclerView();
-                }
+                initRecyclerView();
             }
 
             @Override
@@ -103,36 +110,16 @@ public class FlashcardsFragment extends Fragment {
             }
         };
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference scoreRef = rootRef.child("INFS3604").child("Highscore").child(user.getUid());
-        ValueEventListener scoreEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    String topic = ds.getKey();
-                    mScore.add(dataSnapshot.child(topic).getValue().toString());
-                }
-                scoreFinished = true;
-                if (topicFinished && scoreFinished) {
-                    initRecyclerView();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        topicsRef.addListenerForSingleValueEvent(topicsEventListener);
-        scoreRef.addListenerForSingleValueEvent(scoreEventListener);
+        flashcardsRef.addListenerForSingleValueEvent(flashcardsEventListener);
     }
 
     private void initRecyclerView() {
-        FlashcardsRecyclerViewAdapter recyclerViewAdapter = new FlashcardsRecyclerViewAdapter(getActivity(), mTopic, mScore);
+        FlashcardsRecyclerViewAdapter recyclerViewAdapter = new FlashcardsRecyclerViewAdapter(getActivity(), mFlashcard);
         recyclerView.setAdapter(recyclerViewAdapter);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setOnFlingListener(null);
         LinearSnapHelper linearSnapHelper = new LinearSnapHelper();
         linearSnapHelper.attachToRecyclerView(recyclerView);
         progressBarTopics.setVisibility(View.INVISIBLE);

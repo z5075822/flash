@@ -1,6 +1,7 @@
 package com.example.vinguyen.assignmentprototype;
 
 import android.app.ProgressDialog;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -12,6 +13,7 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,9 +21,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.vinguyen.assignmentprototype.Model.Topic;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -30,6 +38,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -38,15 +48,17 @@ public class ContentFragment extends Fragment implements SpeechDialogFragment.Sp
     private GoogleTranslate translator;
     private TextView textViewContent, textViewContentTitle;
     private CharSequence selectedText = "";
-    private String mValue = "", mContent = "", mContentTitle = "";
+    private String mTopicID = "", mTopicTitle ="", mContent = "", mContentTitle = "";
     private ArrayList<String> contentArray = new ArrayList<>();
-    private Button btnClear;
+    private Button btnClear, btnTest, btnFlashcards;
     private FloatingActionButton fab;
+    private ImageView imageViewTopic;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mValue = getArguments().getString("Key");
+        mTopicID = getArguments().getString("topicID");
+        mTopicTitle = getArguments().getString("title");
         return inflater.inflate(R.layout.fragment_content, container, false);
     }
 
@@ -58,7 +70,7 @@ public class ContentFragment extends Fragment implements SpeechDialogFragment.Sp
 
         View view = getView();
         textViewContentTitle = view.findViewById(R.id.textViewContentTitle);
-        initContent(mValue);
+        initContent(mTopicID);
 
         fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -135,6 +147,38 @@ public class ContentFragment extends Fragment implements SpeechDialogFragment.Sp
             }
         });
 
+        btnFlashcards = view.findViewById(R.id.btnFlashCards);
+
+        btnFlashcards.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FlashcardsFragment fragment = new FlashcardsFragment();
+                Bundle args = new Bundle();
+                args.putString("topicID", mTopicID);
+                args.putString("title", mTopicTitle);
+                FragmentManager manager = getFragmentManager();
+                fragment.setArguments(args);
+                manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("content").commit();
+            }
+        });
+
+        btnTest = view.findViewById(R.id.btnTest);
+
+        btnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                QuestionsFragment fragment = new QuestionsFragment();
+                Bundle args = new Bundle();
+                args.putString("Key", mTopicID);
+                FragmentManager manager = getFragmentManager();
+                fragment.setArguments(args);
+                manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("content").commit();
+            }
+        });
+
+        imageViewTopic = view.findViewById(R.id.imageViewTopic);
+
+        initImage(mTopicID);
     }
 
     private void showSpeechDialog() {
@@ -147,9 +191,6 @@ public class ContentFragment extends Fragment implements SpeechDialogFragment.Sp
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-//        if (mAdapter != null) {
-//            outState.putStringArrayList(STATE_RESULTS, mAdapter.getResults());
-//        }
     }
 
     @Override
@@ -230,23 +271,25 @@ public class ContentFragment extends Fragment implements SpeechDialogFragment.Sp
         ValueEventListener eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    mContent = ds.getValue().toString();
-                    String mContentBreak = mContent.replace("_b", "<br/>");
-                    mContentTitle = ds.getKey();
-                    String stringTitle = mContentTitle.substring(0, 1) + ". " + mContentTitle.substring(2, mContentTitle.length());
-                    contentArray.add(stringTitle);
-                    contentArray.add(mContentBreak);
-                }
-                String contentString = "";
-                for (int i = 0; i < contentArray.size(); i++) {
-                    if ((i % 2 == 0) || (i == 0)) {
-                        contentString += "<b>" + contentArray.get(i) + "</b>";
-                    } else {
-                        contentString += "<p>" + contentArray.get(i) + "</p>";
+                if (dataSnapshot.getValue() != null) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        mContent = ds.getValue().toString();
+                        String mContentBreak = mContent.replace("_b", "<br/>");
+                        mContentTitle = ds.getKey();
+                        String stringTitle = mContentTitle.substring(0, 1) + ". " + mContentTitle.substring(2, mContentTitle.length());
+                        contentArray.add(stringTitle);
+                        contentArray.add(mContentBreak);
                     }
+                    String contentString = "";
+                    for (int i = 0; i < contentArray.size(); i++) {
+                        if ((i % 2 == 0) || (i == 0)) {
+                            contentString += "<b>" + contentArray.get(i) + "</b>";
+                        } else {
+                            contentString += "<p>" + contentArray.get(i) + "</p>";
+                        }
+                    }
+                    textViewContent.setText(Html.fromHtml(contentString));
                 }
-                textViewContent.setText(Html.fromHtml(contentString));
             }
 
             @Override
@@ -255,6 +298,7 @@ public class ContentFragment extends Fragment implements SpeechDialogFragment.Sp
             }
         };
         topicsRef.addValueEventListener(eventListener);
+
     }
 
     public void addToNotes(final String selectedText) {
@@ -284,5 +328,40 @@ public class ContentFragment extends Fragment implements SpeechDialogFragment.Sp
 
             }
         });
+    }
+
+    public void initImage(final String topicID) {
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference imageRef = rootRef.child("INFS3604").child("Topics").child(topicID).child("Image");
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onDataChange: " + dataSnapshot.getValue().toString());
+                    if (dataSnapshot.getValue().toString().equals("Exists")) {
+                        final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(topicID + ".png");
+                        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                if (getActivity() != null) {
+                                    Glide.with(getActivity()).using(new FirebaseImageLoader())
+                                            .load(storageReference)
+                                            .into(imageViewTopic);
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "onFailure: ", e);
+                            }
+                        });
+                    }
+                }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        imageRef.addListenerForSingleValueEvent(eventListener);
     }
 }

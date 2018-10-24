@@ -43,7 +43,8 @@ public class TopicsRecyclerViewAdapter extends RecyclerView.Adapter<TopicsRecycl
             public void onClick(View v) {
                 ContentFragment fragment = new ContentFragment();
                 Bundle args = new Bundle();
-                args.putString("Key", mContent.get(position).getTopicID());
+                args.putString("topicID", mContent.get(position).getTopicID());
+                args.putString("title", mContent.get(position).getTitle());
                 FragmentManager manager = ((AppCompatActivity) mContext).getSupportFragmentManager();
                 fragment.setArguments(args);
                 manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("topics").commit();
@@ -65,7 +66,6 @@ public class TopicsRecyclerViewAdapter extends RecyclerView.Adapter<TopicsRecycl
             super(itemView);
             content = itemView.findViewById(R.id.contents);
             parentLayout = itemView.findViewById(R.id.parent_layout);
-
 
         }
     }

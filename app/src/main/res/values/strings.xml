@@ -8,9 +8,11 @@
     <string name="topic2">Topic 2</string>
     <string name="topic3">Topic 3</string>
     <string name="topic4">Topic 4</string>
-    <string name="select_topic">Please Select a Topic:</string>
-    <string name="select_test_topic">Please Select a Test Topic:</string>
+    <string name="select_topic">Select a Topic to STUDY:</string>
+    <string name="select_test_topic">Select a TEST Topic:</string>
     <string name="or">Or:</string>
+    <string name="notesInstructions">Your list of notes (swipe left to delete):</string>
+    <string name="flashcardsInstructions">Select a topic to view FLASHCARDS:</string>
     <string name="test_yourself">Test Yourself</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -25,8 +27,12 @@
     <string name="find_instructions">Say \'find...\' to search for text</string>
     <string name="loading">Loading...</string>
     <string name="home">Home</string>
+    <string name="study">Study</string>
+    <string name="testHistoryInstructions">To receive an email with the list of questions that you have scored 100% on, click the following button:</string>
+    <string name="send">SEND!</string>
     <string name="instructionsHome">Spend more time in the app to grow your tree AND complete quizzes to adopt more bunnies</string>
     <string name="instructionsNotes">No notes! Highlight content and click \"Add to Notes\" for quick viewing!</string>
+    <string name="reset">Reset</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

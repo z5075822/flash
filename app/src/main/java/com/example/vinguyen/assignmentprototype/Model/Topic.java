@@ -3,15 +3,17 @@ package com.example.vinguyen.assignmentprototype.Model;
 public class Topic {
     private String topicID;
     private String title;
-    private String content;
+    private String QuestionDoc;
+    private String Image;
 
     public Topic() {
     }
 
-    public Topic(String topicID, String title, String content) {
+    public Topic(String topicID, String title, String QuestionDoc, String Image) {
         this.topicID = topicID;
         this.title = title;
-        this.content = content;
+        this.QuestionDoc = QuestionDoc;
+        this.Image = Image;
     }
 
     public String getTopicID() {
@@ -30,12 +32,19 @@ public class Topic {
         this.title = title;
     }
 
-    public String getContent() {
-        return content;
+    public String getQuestionDoc() {
+        return QuestionDoc;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setQuestionDoc(String questionDoc) {
+        QuestionDoc = questionDoc;
     }
 
+    public String getImage() {
+        return Image;
+    }
+
+    public void setImage(String image) {
+        Image = image;
+    }
 }

@@ -16,22 +16,19 @@ import com.example.vinguyen.assignmentprototype.Model.Topic;
 
 import java.util.ArrayList;
 
-public class TestTopicsRecyclerViewAdapter extends RecyclerView.Adapter<TestTopicsRecyclerViewAdapter.ViewHolder> {
-    private static final String TAG = "TestTopicsRecyclerViewA";
+public class FlashcardsListRecyclerViewAdapter extends RecyclerView.Adapter<FlashcardsListRecyclerViewAdapter.ViewHolder> {
+    private static final String TAG = "TopicsRecyclerViewAdapt";
     private ArrayList<Topic> mContent = new ArrayList<>();
-    private ArrayList<String> mScore = new ArrayList<>();
     private Context mContext;
-    private Integer totalQuestions = 4;
 
-    public TestTopicsRecyclerViewAdapter(Context mContext, ArrayList<Topic> mContent, ArrayList<String> mScore) {
+    public FlashcardsListRecyclerViewAdapter(Context mContext, ArrayList<Topic> mContent) {
         this.mContent = mContent;
         this.mContext = mContext;
-        this.mScore = mScore;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_test_topic, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_flashcards_list, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }
@@ -39,17 +36,17 @@ public class TestTopicsRecyclerViewAdapter extends RecyclerView.Adapter<TestTopi
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.content.setText(mContent.get(position).getTitle());
-        holder.score.setText(mScore.get(position) + "/" + totalQuestions);
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                QuestionsFragment fragment = new QuestionsFragment();
+                FlashcardsFragment fragment = new FlashcardsFragment();
                 Bundle args = new Bundle();
-                args.putString("Key", mContent.get(position).getTopicID());
+                args.putString("topicID", mContent.get(position).getTopicID());
+                args.putString("title", mContent.get(position).getTitle());
                 FragmentManager manager = ((AppCompatActivity) mContext).getSupportFragmentManager();
                 fragment.setArguments(args);
-                manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("testTopics").commit();
+                manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("flashcardslist").commit();
             }
         });
     }
@@ -62,14 +59,15 @@ public class TestTopicsRecyclerViewAdapter extends RecyclerView.Adapter<TestTopi
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView content;
-        TextView score;
         ConstraintLayout parentLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
             content = itemView.findViewById(R.id.contents);
-            score = itemView.findViewById(R.id.score);
             parentLayout = itemView.findViewById(R.id.parent_layout);
+
+
         }
     }
+
 }

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/background_material"
-    tools:context=".FlashcardsFragment">
+    tools:context=".FlashcardsListFragment">
+
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -28,37 +29,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8sp"
-                android:text="Flashcards"
+                android:text="@string/flashcardsInstructions"
                 android:textAlignment="center"
                 android:textColor="@color/textColour"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/textViewTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8sp"
-                android:textAlignment="center"
-                android:textColor="@color/textColour"
-                android:textSize="14sp"
-                android:textStyle="bold"/>
-
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/my_recycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
+                android:layout_height="match_parent"
+                android:scrollbars="vertical">
 
-            <Button
-                android:id="@+id/btnReset"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="16sp"
-                android:background="@drawable/button_login"
-                android:text="@string/reset" />
+            </android.support.v7.widget.RecyclerView>
         </LinearLayout>
 
         <ProgressBar
