@@ -25,7 +25,6 @@ import java.util.ArrayList;
 
 
 public class HomeFragment extends Fragment {
-
     private OnFragmentInteractionListener mListener;
     private ArrayList<String> mScore = new ArrayList<>();
     private Integer countPerfect = 0;
@@ -98,6 +97,9 @@ public class HomeFragment extends Fragment {
                     final int minutes = (int) ((timeCumulated/ 1000) / 60);
                     textViewTimeSpent.setText("Time spent (Refreshes on restart): " + minutes + " minutes");
                     switchTree(minutes);
+                } else {
+                    textViewTimeSpent.setText("Time spent (Refreshes on restart): 0 minutes");
+                    switchTree(0);
                 }
             }
 

@@ -21,15 +21,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class ContentsFragment extends Fragment {
-    private static final String TAG = "ContentsFragment";
+public class TopicsFragment extends Fragment {
+    private static final String TAG = "TopicsFragment";
     private ArrayList<String> mTopicTitle = new ArrayList<>();
     private ArrayList<Topic> mTopic = new ArrayList<>();
     private ProgressBar progressBarTopics;
 
     private OnFragmentInteractionListener mListener;
 
-    public ContentsFragment() {
+    public TopicsFragment() {
         // Required empty public constructor
     }
 
@@ -38,7 +38,7 @@ public class ContentsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         initArrayList();
-        return inflater.inflate(R.layout.fragment_contents, container, false);
+        return inflater.inflate(R.layout.fragment_topics, container, false);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class ContentsFragment extends Fragment {
 
     private void initRecyclerView() {
         RecyclerView recyclerView = getView().findViewById(R.id.my_recycler_view);
-        RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(getActivity(), mTopic);
+        TopicsRecyclerViewAdapter recyclerViewAdapter = new TopicsRecyclerViewAdapter(getActivity(), mTopic);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         progressBarTopics.setVisibility(View.INVISIBLE);

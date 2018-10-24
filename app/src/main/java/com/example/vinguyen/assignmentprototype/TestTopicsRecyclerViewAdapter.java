@@ -17,10 +17,11 @@ import com.example.vinguyen.assignmentprototype.Model.Topic;
 import java.util.ArrayList;
 
 public class TestTopicsRecyclerViewAdapter extends RecyclerView.Adapter<TestTopicsRecyclerViewAdapter.ViewHolder> {
-    private static final String TAG = "RecyclerViewAdapter";
+    private static final String TAG = "TestTopicsRecyclerViewA";
     private ArrayList<Topic> mContent = new ArrayList<>();
     private ArrayList<String> mScore = new ArrayList<>();
     private Context mContext;
+    private Integer totalQuestions = 4;
 
     public TestTopicsRecyclerViewAdapter(Context mContext, ArrayList<Topic> mContent, ArrayList<String> mScore) {
         this.mContent = mContent;
@@ -38,7 +39,7 @@ public class TestTopicsRecyclerViewAdapter extends RecyclerView.Adapter<TestTopi
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.content.setText(mContent.get(position).getTitle());
-        holder.score.setText(mScore.get(position).toString() + "/4");
+        holder.score.setText(mScore.get(position).toString() + "/" + totalQuestions);
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,9 +70,6 @@ public class TestTopicsRecyclerViewAdapter extends RecyclerView.Adapter<TestTopi
             content = itemView.findViewById(R.id.contents);
             score = itemView.findViewById(R.id.score);
             parentLayout = itemView.findViewById(R.id.parent_layout);
-
-
         }
     }
-
 }

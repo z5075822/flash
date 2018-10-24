@@ -25,7 +25,7 @@
                 android:text="Clear" />
 
             <TextView
-                android:id="@+id/contentTitle"
+                android:id="@+id/textViewContentTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
@@ -40,7 +40,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/translatabletext"
+                android:id="@+id/textViewContent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"

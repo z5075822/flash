@@ -5,7 +5,7 @@
     android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8sp"
+    android:layout_margin="12sp"
     android:background="@drawable/text_view_topics"
     android:elevation="4dp"
     android:padding="16sp">

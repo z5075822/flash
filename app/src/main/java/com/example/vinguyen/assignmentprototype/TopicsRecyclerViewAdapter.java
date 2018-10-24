@@ -16,19 +16,19 @@ import com.example.vinguyen.assignmentprototype.Model.Topic;
 
 import java.util.ArrayList;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-    private static final String TAG = "RecyclerViewAdapter";
+public class TopicsRecyclerViewAdapter extends RecyclerView.Adapter<TopicsRecyclerViewAdapter.ViewHolder> {
+    private static final String TAG = "TopicsRecyclerViewAdapt";
     private ArrayList<Topic> mContent = new ArrayList<>();
     private Context mContext;
 
-    public RecyclerViewAdapter(Context mContext, ArrayList<Topic> mContent) {
+    public TopicsRecyclerViewAdapter(Context mContext, ArrayList<Topic> mContent) {
         this.mContent = mContent;
         this.mContext = mContext;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_subsection, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_topics, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }
@@ -41,7 +41,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity fragment = new MainActivity();
+                ContentFragment fragment = new ContentFragment();
                 Bundle args = new Bundle();
                 args.putString("Key", mContent.get(position).getTopicID());
                 FragmentManager manager = ((AppCompatActivity) mContext).getSupportFragmentManager();

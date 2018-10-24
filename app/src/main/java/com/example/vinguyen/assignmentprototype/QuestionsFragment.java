@@ -1,7 +1,9 @@
 package com.example.vinguyen.assignmentprototype;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,10 +19,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.vinguyen.assignmentprototype.Model.Question;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,6 +35,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,13 +47,15 @@ public class QuestionsFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private Button btnOption1, btnOption2, btnOption3, btnOption4;
     private TextView textViewQuestion;
-    private int total = 1, correct = 0, incorrect = 0, delay = 1500;
+    private ImageView imageViewQuestion;
+    private int total = 1, correct = 0, incorrect = 0, totalQuestions = 4, delay = 1500;
     private String answer = "";
     private ArrayList<String> options;
     private Question question;
     private ProgressBar progressBar;
     private DatabaseReference databaseReference;
     private String value = "";
+    private Activity activity;
 
 
     public QuestionsFragment() {
@@ -60,6 +71,7 @@ public class QuestionsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         value = getArguments().getString("Key");
+        activity = getActivity();
         return inflater.inflate(R.layout.fragment_questions, container, false);
     }
 
@@ -72,6 +84,7 @@ public class QuestionsFragment extends Fragment {
         btnOption3 = view.findViewById(R.id.btnOption3);
         btnOption4 = view.findViewById(R.id.btnOption4);
         textViewQuestion = view.findViewById(R.id.textViewQuestion);
+        imageViewQuestion = view.findViewById(R.id.imageViewQuestion);
         progressBar = view.findViewById(R.id.progressBar);
         btnOption1.setOnClickListener(onOptionClickListener);
         btnOption2.setOnClickListener(onOptionClickListener);
@@ -108,13 +121,32 @@ public class QuestionsFragment extends Fragment {
     }
 
     private void updateQuestion() {
-        if (total < 5) {
+        if (total < totalQuestions + 1) {
             progressBar.setVisibility(View.VISIBLE);
             databaseReference = FirebaseDatabase.getInstance().getReference().child("INFS3604").child("Topics").child(value).child("Questions").child(String.valueOf(total));
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     question = dataSnapshot.getValue(Question.class);
+                    final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(question.getQuestion() + ".png");
+                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            textViewQuestion.setVisibility(View.INVISIBLE);
+                            imageViewQuestion.setVisibility(View.VISIBLE);
+                            if (activity != null) {
+                                Glide.with(activity).using(new FirebaseImageLoader())
+                                        .load(storageReference)
+                                        .into(imageViewQuestion);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            textViewQuestion.setVisibility(View.VISIBLE);
+                            imageViewQuestion.setVisibility(View.INVISIBLE);
+                        }
+                    });
                     answer = question.getAnswer();
                     options = new ArrayList<>();
                     options.clear();
@@ -158,9 +190,8 @@ public class QuestionsFragment extends Fragment {
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue() != null) {
                                 String highScore = dataSnapshot.getValue().toString();
-                                Log.d(TAG, "highScore: " + highScore + " correct: " + correct);
+                                //Log.d(TAG, "highScore: " + highScore + " correct: " + correct);
                                 if (Integer.parseInt(highScore) < correct) {
-                                    Log.d(TAG, "highScore changed");
                                     databaseReference.setValue(correct);
                                 }
                             } else {
@@ -174,7 +205,7 @@ public class QuestionsFragment extends Fragment {
 
                         }
                     });
-                    Log.d(TAG, "updateQuestion: correct: " + Integer.toString(correct) + " incorrect: " + Integer.toString(incorrect) + " total: " + Integer.toString(total - 1));
+                    //Log.d(TAG, "updateQuestion: correct: " + Integer.toString(correct) + " incorrect: " + Integer.toString(incorrect) + " total: " + Integer.toString(total - 1));
                     Snackbar snackbar = Snackbar
                             .make(getView(), "You answered " + Integer.toString(correct) + " out of " + Integer.toString(total - 1) + " correctly!", Snackbar.LENGTH_LONG);
                     snackbar.show();
@@ -189,7 +220,6 @@ public class QuestionsFragment extends Fragment {
     private View.OnClickListener onOptionClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "onClick: button clicked");
             total++;
             switch (v.getId()) {
                 case R.id.btnOption1:

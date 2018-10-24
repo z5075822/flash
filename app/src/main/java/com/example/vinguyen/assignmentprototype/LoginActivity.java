@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -17,7 +18,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
-    private Button btnLogin, btnRegister;
+    private Button btnLogin;
+    private TextView textViewRegister;
     private EditText editTextEmail, editTextPassword;
     private ProgressBar progressLogin;
     private FirebaseAuth auth;
@@ -36,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         progressLogin = findViewById(R.id.progressLogin);
         progressLogin.setVisibility(View.INVISIBLE);
-        btnRegister = findViewById(R.id.btnRegister);
+        textViewRegister = findViewById(R.id.textViewRegister);
 
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
@@ -80,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
+        textViewRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);

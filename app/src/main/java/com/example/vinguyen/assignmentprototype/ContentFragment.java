@@ -1,33 +1,17 @@
 package com.example.vinguyen.assignmentprototype;
 
-import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,37 +19,35 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-import static android.content.Context.BIND_AUTO_CREATE;
-
-public class MainActivity extends Fragment implements SpeechDialogFragment.SpeechDialogListener {
-    private static final String TAG = "MainActivity";
+public class ContentFragment extends Fragment implements SpeechDialogFragment.SpeechDialogListener {
+    private static final String TAG = "ContentFragment";
     private GoogleTranslate translator;
-    private TextView translatabletext, contentTitle;
+    private TextView textViewContent, textViewContentTitle;
     private CharSequence selectedText = "";
-    private String value = "", mContent = "", mContentTitle = "";
+    private String mValue = "", mContent = "", mContentTitle = "";
     private ArrayList<String> contentArray = new ArrayList<>();
-
     private Button btnClear;
     private FloatingActionButton fab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        value = getArguments().getString("Key");
-        Log.d(TAG, "onCreateView: " + value);
-        return inflater.inflate(R.layout.activity_main, container, false);
+        mValue = getArguments().getString("Key");
+        return inflater.inflate(R.layout.fragment_content, container, false);
     }
 
     @Override
@@ -75,8 +57,8 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
         StrictMode.setThreadPolicy(policy);
 
         View view = getView();
-        contentTitle = view.findViewById(R.id.contentTitle);
-        initContent(value);
+        textViewContentTitle = view.findViewById(R.id.textViewContentTitle);
+        initContent(mValue);
 
         fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -86,8 +68,8 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
             }
         });
 
-        translatabletext = view.findViewById(R.id.translatabletext);
-        translatabletext.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+        textViewContent = view.findViewById(R.id.textViewContent);
+        textViewContent.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 // Called when action mode is first created. The menu supplied
@@ -108,22 +90,23 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                int min = 0;
+                int max = textViewContent.getText().length();
+                if (textViewContent.isFocused()) {
+                    final int selStart = textViewContent.getSelectionStart();
+                    final int selEnd = textViewContent.getSelectionEnd();
+
+                    min = Math.max(0, Math.min(selStart, selEnd));
+                    max = Math.max(0, Math.max(selStart, selEnd));
+                }
+                selectedText = textViewContent.getText().subSequence(min, max);
                 switch (item.getItemId()) {
                     case 1:
-                        int min = 0;
-                        int max = translatabletext.getText().length();
-                        if (translatabletext.isFocused()) {
-                            final int selStart = translatabletext.getSelectionStart();
-                            final int selEnd = translatabletext.getSelectionEnd();
-
-                            min = Math.max(0, Math.min(selStart, selEnd));
-                            max = Math.max(0, Math.max(selStart, selEnd));
-                        }
-                        // Perform your definition lookup with the selected text
-                        selectedText = translatabletext.getText().subSequence(min, max);
-                        Log.d(TAG, "onActionItemClicked: " + selectedText);
                         new EnglishToChinese().execute();
-                        // Finish and close the ActionMode
+                        mode.finish();
+                        return true;
+                    case 2:
+                        addToNotes(selectedText.toString());
                         mode.finish();
                         return true;
                     default:
@@ -143,12 +126,12 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Spannable WordtoSpan = new SpannableString(translatabletext.getText());
+                Spannable WordtoSpan = new SpannableString(textViewContent.getText());
                 BackgroundColorSpan[] spans = WordtoSpan.getSpans(0, WordtoSpan.length(), BackgroundColorSpan.class);
                 for (BackgroundColorSpan span : spans) {
                     WordtoSpan.removeSpan(span);
                 }
-                translatabletext.setText(WordtoSpan, TextView.BufferType.SPANNABLE);
+                textViewContent.setText(WordtoSpan, TextView.BufferType.SPANNABLE);
             }
         });
 
@@ -157,7 +140,7 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
     private void showSpeechDialog() {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         SpeechDialogFragment speechDialogFragment = SpeechDialogFragment.newInstance("Listening...");
-        speechDialogFragment.setTargetFragment(MainActivity.this, 300);
+        speechDialogFragment.setTargetFragment(ContentFragment.this, 300);
         speechDialogFragment.show(fm, "speech_dialog_fragment");
     }
 
@@ -171,9 +154,9 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
 
     @Override
     public void onFinishSpeechDialog(String searchPhrase) {
-        String textViewString = translatabletext.getText().toString().toLowerCase();
+        String textViewString = textViewContent.getText().toString().toLowerCase();
         int ofe = textViewString.indexOf(searchPhrase, 0);
-        Spannable WordtoSpan = new SpannableString(translatabletext.getText());
+        Spannable WordtoSpan = new SpannableString(textViewContent.getText());
         BackgroundColorSpan[] spans = WordtoSpan.getSpans(0, WordtoSpan.length(), BackgroundColorSpan.class);
         for (BackgroundColorSpan span : spans) {
             WordtoSpan.removeSpan(span);
@@ -185,7 +168,7 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
                 break;
             else {
                 WordtoSpan.setSpan(new BackgroundColorSpan(0xFFFFFF00), ofe, ofe + searchPhrase.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                translatabletext.setText(WordtoSpan, TextView.BufferType.SPANNABLE);
+                textViewContent.setText(WordtoSpan, TextView.BufferType.SPANNABLE);
             }
         }
     }
@@ -250,26 +233,20 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     mContent = ds.getValue().toString();
                     String mContentBreak = mContent.replace("_b", "<br/>");
-//                    String mContentPoint = mContentBreak.replace("_p", "\u2022");
-//                    Log.d(TAG, "onDataChange: " + mContentFinal);
                     mContentTitle = ds.getKey();
-                    String stringTitle = mContentTitle.substring(0,1) + ". " + mContentTitle.substring(2,mContentTitle.length());
+                    String stringTitle = mContentTitle.substring(0, 1) + ". " + mContentTitle.substring(2, mContentTitle.length());
                     contentArray.add(stringTitle);
                     contentArray.add(mContentBreak);
-                    //translatabletext.setText(mContentFinal);
-                    //contentTitle.setText(mContentTitle);
                 }
                 String contentString = "";
-                for (int i=0; i < contentArray.size(); i++) {
-                    if ((i%2 ==0) || (i==0)){
+                for (int i = 0; i < contentArray.size(); i++) {
+                    if ((i % 2 == 0) || (i == 0)) {
                         contentString += "<b>" + contentArray.get(i) + "</b>";
-                    }
-                    else {
+                    } else {
                         contentString += "<p>" + contentArray.get(i) + "</p>";
                     }
-//                    contentString += contentArray.get(i) + "\n\n";
                 }
-                translatabletext.setText(Html.fromHtml(contentString));
+                textViewContent.setText(Html.fromHtml(contentString));
             }
 
             @Override
@@ -278,5 +255,34 @@ public class MainActivity extends Fragment implements SpeechDialogFragment.Speec
             }
         };
         topicsRef.addValueEventListener(eventListener);
+    }
+
+    public void addToNotes(final String selectedText) {
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final DatabaseReference notesRef = rootRef.child("Users").child(user.getUid()).child("Notes");
+        Query lastQuery = notesRef.orderByKey().limitToLast(1);
+        lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getChildrenCount() > 0) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        if (ds.exists()) {
+                            Integer key = Integer.parseInt(ds.getKey().toString());
+                            key += 10;
+                            notesRef.child(Integer.toString(key)).setValue(selectedText);
+                        }
+                    }
+                } else {
+                    notesRef.child("0").setValue(selectedText);
+                }
+                Toast.makeText(getActivity(), "Added to Notes!", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

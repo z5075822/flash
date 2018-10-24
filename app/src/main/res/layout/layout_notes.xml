@@ -5,29 +5,20 @@
     android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12sp"
-    android:background="@drawable/text_view_topics"
-    android:elevation="4dp"
+    android:layout_margin="8sp"
+    android:background="@color/colorEditTextBackground"
     android:padding="16sp">
 
     <TextView
-        android:id="@+id/contents"
+        android:id="@+id/notes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:textColor="@color/textColour"
-        app:layout_constraintEnd_toStartOf="@+id/score"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:textColor="@color/textColour"
-        app:layout_constraintBaseline_toBaselineOf="@+id/contents"
-        app:layout_constraintEnd_toEndOf="parent" />
 </android.support.constraint.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +26,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class FlashcardsFragment extends Fragment {
-    private static final String TAG = "ContentsFragment";
     private RecyclerView recyclerView;
     private ArrayList<String> mTopicTitle = new ArrayList<>();
     private ArrayList<Topic> mTopic = new ArrayList<>();
@@ -78,7 +78,6 @@ public class FlashcardsFragment extends Fragment {
     }
 
     public void initTopicArrayList() {
-        Log.d(TAG, "initTopicArrayList: called");
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference topicsRef = rootRef.child("INFS3604").child("Topics");
         ValueEventListener topicsEventListener = new ValueEventListener() {
@@ -129,15 +128,13 @@ public class FlashcardsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        //recyclerView = getView().findViewById(R.id.my_recycler_view);
         FlashcardsRecyclerViewAdapter recyclerViewAdapter = new FlashcardsRecyclerViewAdapter(getActivity(), mTopic, mScore);
-        Log.d(TAG, "initRecyclerView: called");
         recyclerView.setAdapter(recyclerViewAdapter);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
-        SnapHelper snapHelper = new SnapHelper();
-        snapHelper.attachToRecyclerView(recyclerView);
+        LinearSnapHelper linearSnapHelper = new LinearSnapHelper();
+        linearSnapHelper.attachToRecyclerView(recyclerView);
         progressBarTopics.setVisibility(View.INVISIBLE);
     }
 }

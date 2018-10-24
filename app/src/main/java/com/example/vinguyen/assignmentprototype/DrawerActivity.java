@@ -29,29 +29,16 @@ import com.google.firebase.database.ValueEventListener;
 
 public class DrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        ContentsFragment.OnFragmentInteractionListener,
+        TopicsFragment.OnFragmentInteractionListener,
         QuestionsFragment.OnFragmentInteractionListener,
         TestTopicsFragment.OnFragmentInteractionListener,
         HomeFragment.OnFragmentInteractionListener,
-        FlashcardsFragment.OnFragmentInteractionListener{
+        FlashcardsFragment.OnFragmentInteractionListener,
+        TestHistoryFragment.OnFragmentInteractionListener,
+        NotesFragment.OnFragmentInteractionListener {
     private static final String TAG = "DrawerActivity";
-    private DrawerLayout drawer;
-    private ActionBarDrawerToggle toggle;
     private FirebaseAuth auth;
     private long timeStart, timeFinish;
-
-//    @Override
-//    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//        toggle.syncState();
-//    }
-//
-//    @Override
-//    public void onConfigurationChanged(Configuration newConfig) {
-//        super.onConfigurationChanged(newConfig);
-//        toggle.onConfigurationChanged(newConfig);
-//    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +50,6 @@ public class DrawerActivity extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         final TextView navUsername = headerView.findViewById(R.id.nav_header_textView);
 
-        //get current user
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         authListener = new FirebaseAuth.AuthStateListener() {
@@ -127,8 +113,7 @@ public class DrawerActivity extends AppCompatActivity
     public void signOut() {
         auth.signOut();
 
-
-// this listener will be called when there is change in firebase user session
+        // this listener will be called when there is change in firebase user session
         FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -146,26 +131,14 @@ public class DrawerActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        timeStart=System.currentTimeMillis();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        timeFinish=System.currentTimeMillis();
-        final long timeSpent = timeFinish - timeStart;
+        timeStart = System.currentTimeMillis();
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(user.getUid()).child("time spent");
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    Long timeCumulated = Long.parseLong(dataSnapshot.getValue().toString());
-                    timeCumulated += timeSpent;
-                    databaseReference.setValue(timeCumulated.toString());
-                    //final int minutes = (int) ((timeCumulated/ 1000) / 60);
-                } else {
-                    databaseReference.setValue(Long.toString(timeSpent));
+                if (dataSnapshot.getValue() == null) {
+                    databaseReference.setValue(Integer.toString(0));
                 }
             }
 
@@ -174,7 +147,34 @@ public class DrawerActivity extends AppCompatActivity
 
             }
         });
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        timeFinish = System.currentTimeMillis();
+        final long timeSpent = timeFinish - timeStart;
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(user.getUid()).child("time spent");
+            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue() != null) {
+                        Long timeCumulated = Long.parseLong(dataSnapshot.getValue().toString());
+                        timeCumulated += timeSpent;
+                        databaseReference.setValue(timeCumulated.toString());
+                    } else {
+                        databaseReference.setValue(Long.toString(timeSpent));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     @Override
@@ -191,28 +191,6 @@ public class DrawerActivity extends AppCompatActivity
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.activity_main_drawer, menu);
-//        return true;
-//    }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-////        if (id == R.id.nav_item_one) {
-////            return true;
-////        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -223,13 +201,15 @@ public class DrawerActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             fragment = new HomeFragment();
         } else if (id == R.id.nav_topics) {
-            fragment = new ContentsFragment();
+            fragment = new TopicsFragment();
+        } else if (id == R.id.nav_notes) {
+            fragment = new NotesFragment();
         } else if (id == R.id.nav_test) {
             fragment = new TestTopicsFragment();
         } else if (id == R.id.nav_flashcards) {
             fragment = new FlashcardsFragment();
         } else if (id == R.id.nav_test_history) {
-
+            fragment = new TestHistoryFragment();
         } else if (id == R.id.logout) {
             auth.signOut();
         }
@@ -240,11 +220,6 @@ public class DrawerActivity extends AppCompatActivity
             ft.replace(R.id.content_frame, fragment);
             ft.commit();
         }
-
-        // set the toolbar title
-//        if (getSupportActionBar() != null) {
-//            getSupportActionBar().setTitle(title);
-//        }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
