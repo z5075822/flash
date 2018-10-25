@@ -14,7 +14,7 @@ This app was designed to assist students in their learning and understanding of 
 7) if error, install directly through steps below
 
 ## Installing APK directly
-> Note: Naming convention for locations may differ across Android devices and brands
+> Note: Names for locations may differ across Android devices and brands
 1) Go to "Settings" -> "Security" -> "Install unknown apps", and switch the toggle to allow for "My Files"
 2) Navigate to this link on your android device: https://goo.gl/KkPRQR
 3) Download the APK located at the link
