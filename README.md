@@ -13,7 +13,7 @@ This app was designed to assist students in their learning and understanding of 
 6) run
 7) if error, install directly through steps below
 
-## Instally APK directly onto phone
+## Installing APK directly
 1) Go to "Settings" -> "Security" -> "Install unknown apps", and switch the toggle to allow for "My Files"
 > Note: Naming convention for locations may differ across Android devices and barnds
 2) Navigate to this link on your android device: https://goo.gl/KkPRQR
