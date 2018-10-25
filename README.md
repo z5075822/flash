@@ -20,7 +20,7 @@ This app was designed to assist students in their learning and understanding of 
 3) Download the APK located at the link
 4) Open "My Files" and find the "Flash.apk" file that was just downloaded
 5) Click on the "Flask.apk" file and install through the on-screen instructions
-6) Open the file
+6) Open the app
 
 # Contact
 Contact us at @email.com, for further inquiries or errors regarding building the project
