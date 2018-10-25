@@ -14,8 +14,8 @@ This app was designed to assist students in their learning and understanding of 
 7) if error, install directly through steps below
 
 ## Installing APK directly
+> Note: Naming convention for locations may differ across Android devices and brands
 1) Go to "Settings" -> "Security" -> "Install unknown apps", and switch the toggle to allow for "My Files"
-> Note: Naming convention for locations may differ across Android devices and barnds
 2) Navigate to this link on your android device: https://goo.gl/KkPRQR
 3) Download the APK located at the link
 4) Open "My Files" and find the "Flash.apk" file that was just downloaded
