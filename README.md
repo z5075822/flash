@@ -11,7 +11,7 @@ This app was designed to assist students in their learning and understanding of 
 4) On the toolbar at the top, go to File -> Open > than navigate and locate the 'flash-master' file that you unzipped
 5) Press open in new window when popup appears
 6) Wait for the gradle to finish
-> If than is an error regarding Multidexes, attempt to install the APK directly through the steps below
+> If there is an error regarding **multidexes**, attempt to install the APK directly through the steps below
 7) On the toolbar at the top, go to Run -> Run
 
 ## Installing APK directly
