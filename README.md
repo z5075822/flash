@@ -14,6 +14,8 @@ This app was designed to assist students in their learning and understanding of 
 > If there is an error regarding **multidexes**, attempt to install the APK directly through the steps below
 7) On the toolbar at the top, go to Run -> Run
 
+
+
 ## Installing APK directly
 > Note: Names for locations may differ across Android devices and brands
 1) Go to "Settings" -> "Security" -> "Install unknown apps", and switch the toggle to allow for "My Files"
