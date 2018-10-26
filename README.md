@@ -6,13 +6,14 @@ This app was designed to assist students in their learning and understanding of 
 
 # Build instructions
 ## Building through AndroidStudio
-1) Download Zip from Github (Upper right corner)
-2) Unzip file
+1) Select the green 'Clone and download' button from Github (upper right corner)
+2) Then choose 'download Zip' 
+2) Unzip or extract file to selected location
 3) Open AndroidStudio 
-4) On the toolbar at the top, go to File -> Open > than navigate and locate the 'flash-master' file that you unzipped
-5) Press open in new window when popup appears
-6) Wait for the gradle to finish
-> If there is an error regarding **multidexes**, attempt to install the APK directly through the steps below
+4) On the toolbar at the top, go to File -> Open > than navigate and locate the 'flash-master' file that was unzipped from the download
+5) Select 'open in new window' option when popup appears
+6) Wait for the gradle to finish building
+> Note: If there is an error regarding **multidexes**, attempt to install the APK directly through the steps below
 7) On the toolbar at the top, go to Run -> Run
  
  
