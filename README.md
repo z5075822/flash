@@ -27,7 +27,12 @@ This app was designed to assist students in their learning and understanding of 
 5) Click on the "Flask.apk" file and install through the on-screen instructions
 6) Open the app
 
- 
+# APIs used
+- Firebase API
+- Google Speech API
+- Google Translate API
+- Glide API
+- Easy Flip View API
   
 # Contact
 Contact us at our zID emails, for further inquiries regarding the project or errors!
