@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +19,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = "LoginActivity";
     private Button btnLogin;
     private TextView textViewRegister;
     private EditText editTextEmail, editTextPassword;
@@ -29,9 +31,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        //Checks to see if user is logged in; If user is still logged in, starts Main Activity (DrawerActivity)
         auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
             startActivity(new Intent(LoginActivity.this, DrawerActivity.class));
+            Log.d(TAG, "onCreate: user exists");
             finish();
         }
 
@@ -39,7 +43,6 @@ public class LoginActivity extends AppCompatActivity {
         progressLogin = findViewById(R.id.progressLogin);
         progressLogin.setVisibility(View.INVISIBLE);
         textViewRegister = findViewById(R.id.textViewRegister);
-
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
 
@@ -61,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 progressLogin.setVisibility(View.VISIBLE);
 
-                //authenticate user
+                //Authenticate user
                 auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -75,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                                 } else {
                                     Intent intent = new Intent(LoginActivity.this, DrawerActivity.class);
                                     startActivity(intent);
+                                    Log.d(TAG, "onComplete: user logged in");
                                     finish();
                                 }
                             }
@@ -82,6 +86,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        //Starts register activity
         textViewRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

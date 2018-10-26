@@ -42,7 +42,6 @@ import javax.mail.internet.MimeMultipart;
 
 public class TestHistoryFragment extends Fragment {
     private static final String TAG = "TestHistoryFragment";
-
     private OnFragmentInteractionListener mListener;
     private ArrayList<Topic> mTopic = new ArrayList<>();
     private ArrayList<String> mScore = new ArrayList<>();
@@ -74,6 +73,7 @@ public class TestHistoryFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (scoreFinished && topicFinished) {
+                    //Starts Async task
                     new SendEmail().execute();
                     Toast.makeText(getActivity(), "Email has been sent", Toast.LENGTH_LONG).show();
                 } else {
@@ -105,9 +105,11 @@ public class TestHistoryFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    //Sends email containing scores and explanations of perfect quizzes
     class SendEmail extends AsyncTask<Void, Void, String> {
         @Override
         protected String doInBackground(Void... voids) {
+            //Sets from email
             final String username = "infs3634flashproject@gmail.com";
             final String password = "HighDistinction100!";
             final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -126,12 +128,15 @@ public class TestHistoryFragment extends Fragment {
                         }
                     });
             try {
+                //Sets message of email
                 Message message = new MimeMessage(session);
                 message.setFrom(new InternetAddress("from-email@gmail.com"));
                 message.setRecipients(Message.RecipientType.TO,
                         InternetAddress.parse(email));
                 message.setSubject("Flash: INFS3604 Test History");
                 StringBuilder messageBody = new StringBuilder(1000);
+
+                //Goes through all topics and adds link to message if perfect score
                 for (int i = 0; i < mTopic.size(); i++) {
                     messageBody.append("You got " + mScore.get(i) + " for " + mTopic.get(i).getTitle() + "\n");
                     if (Integer.parseInt(mScore.get(i)) == 4) {
@@ -140,23 +145,28 @@ public class TestHistoryFragment extends Fragment {
                 }
                 message.setText(messageBody.toString());
                 Transport.send(message);
-                Log.d(TAG, "doInBackground: messsage sent");
+                Log.d(TAG, "doInBackground: messsage sent to " + email + " with content: " + message);
             } catch (MessagingException e) {
+                Log.e(TAG, "doInBackground: ", e);
                 throw new RuntimeException(e);
             }
             return null;
         }
     }
 
+    //Initialises both arraylists
     public void initTopicArrayList() {
+        //Creates a reference to database
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference topicsRef = rootRef.child("INFS3604").child("Topics");
         ValueEventListener topicsEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    //Adds topic from Firebase node to arraylist
                     Topic topic = ds.getValue(Topic.class);
                     mTopic.add(topic);
+                    Log.d(TAG, "onDataChange: topic added");
                 }
                 topicFinished = true;
             }
@@ -167,12 +177,14 @@ public class TestHistoryFragment extends Fragment {
             }
         };
 
+        //Creates a different reference to database
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference scoreRef = rootRef.child("INFS3604").child("Highscore").child(user.getUid());
         ValueEventListener scoreEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    //Adds score to arraylist
                     String topic = ds.getKey();
                     mScore.add(dataSnapshot.child(topic).getValue().toString());
                 }

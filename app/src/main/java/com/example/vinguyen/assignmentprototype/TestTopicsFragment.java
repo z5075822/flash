@@ -25,13 +25,13 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class TestTopicsFragment extends Fragment {
-    private static final String TAG = "ContentsFragment";
-    private RecyclerView recyclerView;
-    private ArrayList<String> mTopicTitle = new ArrayList<>();
-    private ArrayList<Topic> mTopic = new ArrayList<>();
-    private ArrayList<String> mScore = new ArrayList<>();
-    private ProgressBar progressBarTopics;
-    private boolean topicFinished, scoreFinished;
+    private static final String TAG = "TestTopicsFragment";
+    public RecyclerView recyclerView;
+    public ArrayList<String> mTopicTitle = new ArrayList<>();
+    public ArrayList<Topic> mTopic = new ArrayList<>();
+    public ArrayList<String> mScore = new ArrayList<>();
+    public ProgressBar progressBarTopics;
+    public boolean topicFinished, scoreFinished;
 
     private OnFragmentInteractionListener mListener;
 
@@ -78,17 +78,20 @@ public class TestTopicsFragment extends Fragment {
     }
 
     public void initTopicArrayList() {
+        //Creates a reference to database
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference topicsRef = rootRef.child("INFS3604").child("Topics");
         ValueEventListener topicsEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    //Adds unique topic from firebase to arraylist
                     Topic topic = ds.getValue(Topic.class);
                     if (!mTopicTitle.contains(topic.getTitle())) {
                         mTopicTitle.add(topic.getTitle());
                         topic.setTopicID(ds.getKey());
                         mTopic.add(topic);
+                        Log.d(TAG, "onDataChange: topic added");
                     }
                 }
                 topicFinished = true;
@@ -103,14 +106,18 @@ public class TestTopicsFragment extends Fragment {
             }
         };
 
+        //Creates another reference to database under different node
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference scoreRef = rootRef.child("INFS3604").child("Highscore").child(user.getUid());
         ValueEventListener scoreEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    //Adds score to arraylist
                     String topic = ds.getKey();
-                    mScore.add(dataSnapshot.child(topic).getValue().toString());
+                    String score = dataSnapshot.child(topic).getValue().toString();
+                    mScore.add(score);
+                    Log.d(TAG, "onDataChange: score: " + score + " added");
                 }
                 scoreFinished = true;
                 if (topicFinished && scoreFinished) {
@@ -128,11 +135,11 @@ public class TestTopicsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        //recyclerView = getView().findViewById(R.id.my_recycler_view);
+        //Create new instance of Recyclerview adapter and adds to Recyclerview
         TestTopicsRecyclerViewAdapter recyclerViewAdapter = new TestTopicsRecyclerViewAdapter(getActivity(), mTopic, mScore);
-        Log.d(TAG, "initRecyclerView: called");
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         progressBarTopics.setVisibility(View.INVISIBLE);
+        Log.d(TAG, "initRecyclerView: RecycleverViewAdapter initialised");
     }
 }

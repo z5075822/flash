@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DrawerActivity" />
+        <activity android:name=".DrawerActivity"
+            android:screenOrientation="portrait"/>
 
         <service android:name=".Speech.SpeechService" />
 

@@ -46,31 +46,34 @@ public class DrawerActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation_drawer);
 
-        auth = FirebaseAuth.getInstance();
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         final TextView navUsername = headerView.findViewById(R.id.nav_header_textView);
 
+        //Get instance of user
+        auth = FirebaseAuth.getInstance();
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user == null) {
-                    // user auth state is changed - user is null
-                    // launch login activity
+                    //If user is null launches Login activity
                     startActivity(new Intent(DrawerActivity.this, LoginActivity.class));
                     finish();
                 } else {
+                    //Otherwise sets the email in the drawer
+                    Log.d(TAG, "onAuthStateChanged: Current user email: " + user.getEmail());
                     navUsername.setText(user.getEmail());
                 }
             }
         };
 
+
         Toolbar toolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
+        //Sets default fragment as the Home Fragment
         Fragment fragment = new HomeFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.content_frame, fragment).commitNow();
@@ -110,35 +113,21 @@ public class DrawerActivity extends AppCompatActivity
 
     };
 
-    //sign out method
-    public void signOut() {
-        auth.signOut();
-
-        // this listener will be called when there is change in firebase user session
-        FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user == null) {
-                    // user auth state is changed - user is null
-                    // launch login activity
-                    startActivity(new Intent(DrawerActivity.this, LoginActivity.class));
-                    finish();
-                }
-            }
-        };
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
+        //When app is visible, records the current time in milliseconds
         timeStart = System.currentTimeMillis();
+
+        //Create a reference to database
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(user.getUid()).child("time spent");
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() == null) {
+                    //If user has logged in for the first time, sets time to 0 as no instance of user in database
+                    Log.d(TAG, "onDataChange: Time spent set to 0");
                     databaseReference.setValue(Integer.toString(0));
                 }
             }
@@ -153,8 +142,13 @@ public class DrawerActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        //When app is no longer in foreground, records the current time in milliseconds
         timeFinish = System.currentTimeMillis();
+
+        //Calculates time spent in app in milliseconds by subtracting time started and finished
         final long timeSpent = timeFinish - timeStart;
+
+        //Adds time to database so it is cumulative
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(user.getUid()).child("time spent");
@@ -165,6 +159,7 @@ public class DrawerActivity extends AppCompatActivity
                         Long timeCumulated = Long.parseLong(dataSnapshot.getValue().toString());
                         timeCumulated += timeSpent;
                         databaseReference.setValue(timeCumulated.toString());
+                        Log.d(TAG, "onDataChange: Cumulative time set to: " + timeCumulated + " milliseconds");
                     } else {
                         databaseReference.setValue(Long.toString(timeSpent));
                     }
@@ -195,7 +190,7 @@ public class DrawerActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        // Handle navigation view item clicks
         int id = item.getItemId();
         Fragment fragment = null;
 
@@ -215,11 +210,12 @@ public class DrawerActivity extends AppCompatActivity
             auth.signOut();
         }
 
-
+        //Starts fragment
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.content_frame, fragment);
             ft.commit();
+            Log.d(TAG, "onNavigationItemSelected: started " + fragment.getTag());
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

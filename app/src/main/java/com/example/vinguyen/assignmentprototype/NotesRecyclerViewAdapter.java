@@ -6,6 +6,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,9 @@ public class NotesRecyclerViewAdapter extends RecyclerView.Adapter<NotesRecycler
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+        //Sets Textview based on arraylist sent from fragment
         holder.notes.setText(mNotes.get(position).toString());
+        Log.d(TAG, "onBindViewHolder: note added");
     }
 
     @Override

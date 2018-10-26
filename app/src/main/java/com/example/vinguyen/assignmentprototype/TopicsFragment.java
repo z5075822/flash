@@ -72,6 +72,7 @@ public class TopicsFragment extends Fragment {
     }
 
     public void initArrayList() {
+        //Create a reference to database
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference topicsRef = rootRef.child("INFS3604").child("Topics");
         ValueEventListener eventListener = new ValueEventListener() {
@@ -79,10 +80,13 @@ public class TopicsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     Topic topic = ds.getValue(Topic.class);
+                    //Add topic to arraylist
                     if (!mTopicTitle.contains(topic.getTitle())) {
+                        Log.d(TAG, "onDataChange: topic title:" + topic.getTitle());
                         mTopicTitle.add(topic.getTitle());
                         topic.setTopicID(ds.getKey());
                         mTopic.add(topic);
+                        Log.d(TAG, "onDataChange: topic added");
                     }
                 }
                 initRecyclerView();
@@ -97,10 +101,12 @@ public class TopicsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
+        //Create new instance of Recyclerview adapter and adds to Recyclerview
         RecyclerView recyclerView = getView().findViewById(R.id.my_recycler_view);
         TopicsRecyclerViewAdapter recyclerViewAdapter = new TopicsRecyclerViewAdapter(getActivity(), mTopic);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         progressBarTopics.setVisibility(View.INVISIBLE);
+        Log.d(TAG, "initRecyclerView: RecycleverViewAdapter initialised");
     }
 }

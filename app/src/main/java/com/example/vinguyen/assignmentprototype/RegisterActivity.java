@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,6 +24,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class RegisterActivity extends AppCompatActivity {
+    private static final String TAG = "RegisterActivity";
+    private Integer totalTopics;
     private Button btnRegister;
     private EditText editTextEmail, editTextPassword;
     private ProgressBar progressBar;
@@ -60,12 +63,12 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
                 progressBar.setVisibility(View.VISIBLE);
-                //create user
+                //Create user
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                Toast.makeText(RegisterActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RegisterActivity.this, "Register complete!: " + task.isSuccessful(), Toast.LENGTH_SHORT).show();
                                 progressBar.setVisibility(View.GONE);
                                 // If sign in fails, display a message to the user. If sign in succeeds
                                 // the auth state listener will be notified and logic to handle the
@@ -74,17 +77,31 @@ public class RegisterActivity extends AppCompatActivity {
                                     Toast.makeText(RegisterActivity.this, "Authentication failed." + task.getException(),
                                             Toast.LENGTH_SHORT).show();
                                 } else {
+
+                                    final DatabaseReference topicReference = FirebaseDatabase.getInstance().getReference().child("INFS3604").child("Topics");
+                                    topicReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            totalTopics = (int) dataSnapshot.getChildrenCount();
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+
                                     final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                                     final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("INFS3604").child("Highscore").child(user.getUid());
                                     databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            //Sets test scores in Firebase to 0 for user
                                             Integer defaultValue = 0;
-                                            databaseReference.child("topic1").setValue(defaultValue);
-                                            databaseReference.child("topic2").setValue(defaultValue);
-                                            databaseReference.child("topic3").setValue(defaultValue);
-                                            databaseReference.child("topic4").setValue(defaultValue);
-                                            databaseReference.child("topic5").setValue(defaultValue);
+                                            for (int topicNumbers = 1; topicNumbers <= totalTopics; topicNumbers++) {
+                                                databaseReference.child("topic" + topicNumbers).setValue(defaultValue);
+                                                Log.d(TAG, "onDataChange: set default value for topic" + topicNumbers);
+                                            }
                                         }
 
                                         @Override

@@ -3,7 +3,6 @@ package com.example.vinguyen.assignmentprototype;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,13 +11,11 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -54,7 +51,7 @@ public class QuestionsFragment extends Fragment {
     private Question question;
     private ProgressBar progressBar;
     private DatabaseReference databaseReference;
-    private String value = "";
+    private String mTopicID = "";
     private Activity activity;
 
 
@@ -70,7 +67,9 @@ public class QuestionsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        value = getArguments().getString("Key");
+        //Recieves topic ID and the title of topic from prior fragment
+        mTopicID = getArguments().getString("Key");
+        Log.d(TAG, "onCreateView: recieved ID:" + mTopicID);
         activity = getActivity();
         return inflater.inflate(R.layout.fragment_questions, container, false);
     }
@@ -121,13 +120,19 @@ public class QuestionsFragment extends Fragment {
     }
 
     private void updateQuestion() {
+        //While the total is less than total questions
         if (total < totalQuestions + 1) {
             progressBar.setVisibility(View.VISIBLE);
-            databaseReference = FirebaseDatabase.getInstance().getReference().child("INFS3604").child("Topics").child(value).child("Questions").child(String.valueOf(total));
+
+            //Create a reference to database
+            databaseReference = FirebaseDatabase.getInstance().getReference().child("INFS3604").child("Topics").child(mTopicID).child("Questions").child(String.valueOf(total));
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    //Create question class based on Firebase node
                     question = dataSnapshot.getValue(Question.class);
+
+                    //Crate another reference to database and sets question as image if it exists
                     final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(question.getQuestion() + ".png");
                     storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
@@ -138,6 +143,7 @@ public class QuestionsFragment extends Fragment {
                                 Glide.with(activity).using(new FirebaseImageLoader())
                                         .load(storageReference)
                                         .into(imageViewQuestion);
+                                Log.d(TAG, "onSuccess: Image loaded as question");
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -145,8 +151,11 @@ public class QuestionsFragment extends Fragment {
                         public void onFailure(@NonNull Exception e) {
                             textViewQuestion.setVisibility(View.VISIBLE);
                             imageViewQuestion.setVisibility(View.INVISIBLE);
+                            Log.e(TAG, "onFailure: ", e);
                         }
                     });
+
+                    //Gets answers and options from created question class
                     answer = question.getAnswer();
                     options = new ArrayList<>();
                     options.clear();
@@ -155,6 +164,8 @@ public class QuestionsFragment extends Fragment {
                     options.add(question.getOption3());
                     options.add(question.getAnswer());
                     Collections.shuffle(options);
+
+                    //Displays the text for UI on delay and allows user to respond
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -183,14 +194,16 @@ public class QuestionsFragment extends Fragment {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    //Create a reference to database
                     final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    databaseReference = FirebaseDatabase.getInstance().getReference().child("INFS3604").child("Highscore").child(user.getUid()).child(value);
+                    databaseReference = FirebaseDatabase.getInstance().getReference().child("INFS3604").child("Highscore").child(user.getUid()).child(mTopicID);
                     databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue() != null) {
                                 String highScore = dataSnapshot.getValue().toString();
-                                //Log.d(TAG, "highScore: " + highScore + " correct: " + correct);
+                                Log.d(TAG, "onDataChange: current score: " + correct + "Highscore: " + highScore);
+                                //Checks to see if highscore is less than or greater than score achieved
                                 if (Integer.parseInt(highScore) < correct) {
                                     databaseReference.setValue(correct);
                                 }
@@ -205,10 +218,12 @@ public class QuestionsFragment extends Fragment {
 
                         }
                     });
-                    //Log.d(TAG, "updateQuestion: correct: " + Integer.toString(correct) + " incorrect: " + Integer.toString(incorrect) + " total: " + Integer.toString(total - 1));
+                    Log.d(TAG, "updateQuestion: correct: " + Integer.toString(correct) + " incorrect: " + Integer.toString(incorrect) + " total: " + Integer.toString(total - 1));
                     Snackbar snackbar = Snackbar
                             .make(getView(), "You answered " + Integer.toString(correct) + " out of " + Integer.toString(total - 1) + " correctly!", Snackbar.LENGTH_LONG);
                     snackbar.show();
+
+                    //Starts topic fragment when all questions are answered
                     TestTopicsFragment fragment = new TestTopicsFragment();
                     FragmentManager manager = getFragmentManager();
                     manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("questions").commit();
@@ -217,6 +232,7 @@ public class QuestionsFragment extends Fragment {
         }
     }
 
+    //Changes colour of buttons based on correct or incorrect on delay to allow users enough time to review answers
     private View.OnClickListener onOptionClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {

@@ -35,19 +35,25 @@ public class TopicsRecyclerViewAdapter extends RecyclerView.Adapter<TopicsRecycl
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        Log.d(TAG, "onBindViewHolder: called ");
+        //Sets Textviews based on arraylist sent from fragment
         holder.content.setText(mContent.get(position).getTitle());
+        Log.d(TAG, "onBindViewHolder: set " + mContent.get(position).getTitle());
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ContentFragment fragment = new ContentFragment();
+
                 Bundle args = new Bundle();
-                args.putString("topicID", mContent.get(position).getTopicID());
-                args.putString("title", mContent.get(position).getTitle());
+                String topicID = mContent.get(position).getTopicID();
+                String topicTitle = mContent.get(position).getTitle();
+                args.putString("topicID", topicID);
+                args.putString("title", topicTitle);
+
                 FragmentManager manager = ((AppCompatActivity) mContext).getSupportFragmentManager();
                 fragment.setArguments(args);
                 manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("topics").commit();
+                Log.d(TAG, "onClick: content fragment started of Topic ID: " + topicID + " and title " + topicTitle);
             }
         });
     }

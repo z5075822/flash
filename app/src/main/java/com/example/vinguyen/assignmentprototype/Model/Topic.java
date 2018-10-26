@@ -4,16 +4,16 @@ public class Topic {
     private String topicID;
     private String title;
     private String QuestionDoc;
-    private String Image;
+    private String questionImage;
 
     public Topic() {
     }
 
-    public Topic(String topicID, String title, String QuestionDoc, String Image) {
+    public Topic(String topicID, String title, String QuestionDoc, String questionImage) {
         this.topicID = topicID;
         this.title = title;
         this.QuestionDoc = QuestionDoc;
-        this.Image = Image;
+        this.questionImage = questionImage;
     }
 
     public String getTopicID() {
@@ -40,11 +40,11 @@ public class Topic {
         QuestionDoc = questionDoc;
     }
 
-    public String getImage() {
-        return Image;
+    public String getQuestionImage() {
+        return questionImage;
     }
 
-    public void setImage(String image) {
-        Image = image;
+    public void setQuestionImage(String questionImage) {
+        this.questionImage = questionImage;
     }
 }

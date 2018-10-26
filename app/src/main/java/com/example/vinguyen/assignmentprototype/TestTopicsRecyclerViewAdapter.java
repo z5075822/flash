@@ -38,18 +38,27 @@ public class TestTopicsRecyclerViewAdapter extends RecyclerView.Adapter<TestTopi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.content.setText(mContent.get(position).getTitle());
-        holder.score.setText(mScore.get(position) + "/" + totalQuestions);
+        //Sets Textviews based on arraylist sent from fragment
+        String title = mContent.get(position).getTitle();
+        String score = mScore.get(position) + "/" + totalQuestions;
+        holder.content.setText(title);
+        holder.score.setText(score);
+        Log.d(TAG, "onBindViewHolder: set " + title + ", score of " + score);
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //If item in recycler view clicked, start questions fragment and sends Topic ID and Title selected to fragment
                 QuestionsFragment fragment = new QuestionsFragment();
+
                 Bundle args = new Bundle();
-                args.putString("Key", mContent.get(position).getTopicID());
+                String topicID = mContent.get(position).getTopicID();
+                args.putString("Key", topicID);
+
                 FragmentManager manager = ((AppCompatActivity) mContext).getSupportFragmentManager();
                 fragment.setArguments(args);
                 manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("testTopics").commit();
+                Log.d(TAG, "onClick: questions fragment started of Topic ID: " + topicID);
             }
         });
     }

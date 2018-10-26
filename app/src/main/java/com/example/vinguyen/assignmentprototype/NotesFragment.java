@@ -90,6 +90,7 @@ public class NotesFragment extends Fragment {
     }
 
     public void initNotesArrayList() {
+        //Create a reference to database
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference notesRef = rootRef.child("Users").child(user.getUid()).child("Notes");
@@ -98,7 +99,9 @@ public class NotesFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        //Add notes to arraylist
                         mNotes.add(ds.getValue().toString());
+                        Log.d(TAG, "onDataChange: note added to arraylist: " + ds.getValue().toString());
                     }
                     initRecyclerView();
                 } else {
@@ -115,10 +118,12 @@ public class NotesFragment extends Fragment {
     }
 
     private void initRecyclerView() {
+        //Create new instance of Recyclerview adapter and adds to Recyclerview
         final NotesRecyclerViewAdapter recyclerViewAdapter = new NotesRecyclerViewAdapter(getActivity(), mNotes);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        Log.d(TAG, "initRecyclerView: RecycleverViewAdapter initialised");
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
@@ -126,11 +131,13 @@ public class NotesFragment extends Fragment {
                 return false;
             }
 
+            //Remove swiped item from list and notify the RecyclerView on left swip
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 Toast.makeText(getActivity(), "Note deleted!", Toast.LENGTH_SHORT).show();
-                //Remove swiped item from list and notify the RecyclerView
                 final int position = viewHolder.getAdapterPosition();
+
+                //Create reference to database
                 DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 final DatabaseReference notesRef = rootRef.child("Users").child(user.getUid()).child("Notes");
@@ -140,6 +147,7 @@ public class NotesFragment extends Fragment {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                 if (ds.getValue().toString().equals(mNotes.get(position).toString())) {
+                                    //Remove value from firebase
                                     notesRef.child(ds.getKey()).removeValue();
                                     mNotes.remove(position);
                                     break;
@@ -156,6 +164,7 @@ public class NotesFragment extends Fragment {
                 });
             }
 
+            //Creates colour/background of swipe
             @Override
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {

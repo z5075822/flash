@@ -17,7 +17,7 @@ import com.example.vinguyen.assignmentprototype.Model.Topic;
 import java.util.ArrayList;
 
 public class FlashcardsListRecyclerViewAdapter extends RecyclerView.Adapter<FlashcardsListRecyclerViewAdapter.ViewHolder> {
-    private static final String TAG = "TopicsRecyclerViewAdapt";
+    private static final String TAG = "FlashcardsListRecycler";
     private ArrayList<Topic> mContent = new ArrayList<>();
     private Context mContext;
 
@@ -35,18 +35,25 @@ public class FlashcardsListRecyclerViewAdapter extends RecyclerView.Adapter<Flas
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+        //Sets Textview based on arraylist sent from fragment
         holder.content.setText(mContent.get(position).getTitle());
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //If item in recycler view clicked, start flashcards fragment and sends Topic ID and Title selected to fragment
+                String topicID =  mContent.get(position).getTopicID();
+                String topicTitle = mContent.get(position).getTitle();
+
                 FlashcardsFragment fragment = new FlashcardsFragment();
                 Bundle args = new Bundle();
-                args.putString("topicID", mContent.get(position).getTopicID());
-                args.putString("title", mContent.get(position).getTitle());
+                args.putString("topicID", topicID);
+                args.putString("title", topicTitle);
+
                 FragmentManager manager = ((AppCompatActivity) mContext).getSupportFragmentManager();
                 fragment.setArguments(args);
                 manager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack("flashcardslist").commit();
+                Log.d(TAG, "onClick: Flashcards fragment started of Topic ID: " + topicID + " and title " + topicTitle);
             }
         });
     }
