@@ -26,5 +26,5 @@ This app was designed to assist students in their learning and understanding of 
 # Contact
 Contact us at our zID emails, for further inquiries regarding the project or errors!
 
-# HAPPY HOLIDAYS
+**HAPPY HOLIDAYS**
 
